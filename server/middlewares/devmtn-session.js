@@ -1,0 +1,27 @@
+const sessions = {};
+let nextSessionId = 1;
+
+module.exports = (req,res,next)=>{
+    function createSession(){
+        const newSession = {};
+        sessions[nextSessionId] = newSession;
+        req.session = newSession
+        res.setHeader('set-cookie', 'cookieId=' + nextSessionId + '; path=/;')
+        nextSessionId++;
+        
+    }
+    if(req.headers.cookie){
+        // cookieId=1
+        const sessionId = req.headers.cookie.split('=')[1];
+        if(sessions[sessionId]){
+            req.session = sessions[sessionId];
+        } else {
+            // create new session
+            createSession();
+        }
+    } else {
+        createSession();
+
+    }
+    next();
+}
